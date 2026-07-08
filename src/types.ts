@@ -1,129 +1,67 @@
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
+ * Types for the FIFA World Cup 2026 Stadium Operations & Fan Assistant
  */
 
-export interface GateMetric {
-  id: string;
-  name: string;
-  throughputMin: number;
-  waitTimeMinutes: number;
-  scannerStatus: 'OPERATIONAL' | 'DEGRADED' | 'FAILED';
-  totalEntered: number;
-}
-
-export interface ZoneMetric {
-  id: string;
-  name: string; // North, South, East, West, Club, Suite
-  occupancyPercentage: number;
-  crowdDensity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  medicalStaffCount: number;
-  securityStaffCount: number;
-}
-
-export interface RestroomMetric {
-  id: string;
-  name: string;
-  level: number;
-  gender: 'MALE' | 'FEMALE' | 'ALL_GENDER';
-  waitTimeMinutes: number;
-  cleanlinessStatus: 'EXCELLENT' | 'GOOD' | 'NEEDS_CLEANING';
-  isAccessible: boolean;
-}
-
-export interface ConcessionMetric {
-  id: string;
-  name: string;
-  level: number;
-  cuisine: string;
-  waitTimeMinutes: number;
-  inventoryLevels: { [item: string]: number }; // item name to stock percentage
-  activePromotion?: string;
-  isAccessible: boolean;
-}
-
-export interface TransitMetric {
-  id: string;
-  type: 'TRAIN' | 'BUS' | 'RIDESHARE' | 'PARKING';
-  name: string;
-  status: 'ON_TIME' | 'DELAYED' | 'SUSPENDED';
-  delayMinutes: number;
-  congestionLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  nextArrivalMinutes: number;
-}
-
-export interface ActiveIncident {
-  id: string;
-  title: string;
-  description: string;
-  location: string; // Section or area
-  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  category: 'CROWD_MANAGEMENT' | 'SECURITY' | 'MEDICAL' | 'FACILITY' | 'TRANSIT';
-  timestamp: string;
-  status: 'REPORTED' | 'DISPATCHED' | 'RESOLVING' | 'RESOLVED';
-  recommendations: string[];
-}
-
-export interface FanSentiment {
-  positivePercentage: number;
-  neutralPercentage: number;
-  negativePercentage: number;
-  trendingKeywords: string[];
-}
-
-export interface MatchState {
-  team1: string;
-  team2: string;
-  score1: number;
-  score2: number;
-  minute: number;
-  half: 1 | 2 | 'PRE_MATCH' | 'POST_MATCH' | 'HALFTIME';
-  attendance: number;
-}
-
-export interface StadiumConfig {
-  id: string;
-  name: string;
-  city: string;
-  country: string;
-  capacity: number;
-  stadiumMapUrl?: string;
-}
-
-export interface StadiumState {
-  stadium: StadiumConfig;
-  match: MatchState;
-  gates: GateMetric[];
-  zones: ZoneMetric[];
-  restrooms: RestroomMetric[];
-  concessions: ConcessionMetric[];
-  transit: TransitMetric[];
-  incidents: ActiveIncident[];
-  sentiment: FanSentiment;
-}
+export type UserRole = 'fan' | 'staff';
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
+  sender: 'user' | 'assistant' | 'system';
+  text: string;
+  timestamp: Date;
+  category?: 'general' | 'transit' | 'safety' | 'accessibility' | 'sustainability' | 'concession';
+  actionableLink?: {
+    label: string;
+    actionType: 'highlight_gate' | 'transit_info' | 'accessibility_map' | 'report_issue';
+    payload: string;
+  };
 }
 
-export interface StaffRecommendation {
+export interface StadiumIncident {
   id: string;
-  category: 'crowd' | 'security' | 'medical' | 'concessions' | 'transit';
-  priority: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  message: string;
+  type: string;
+  location: string;
+  severity: 'low' | 'medium' | 'high';
+  description: string;
+  status: 'reported' | 'dispatching' | 'resolving' | 'resolved';
   timestamp: string;
-  isImplemented: boolean;
+  reportedBy: 'fan' | 'volunteer' | 'sensor';
+  volunteerAssigned?: string;
+  playbook?: {
+    steps: string[];
+    paScript: {
+      en: string;
+      es: string;
+      fr: string;
+    };
+    estimatedTime: string;
+  };
 }
 
-export interface FanAlert {
+export interface GateStatus {
   id: string;
-  title: string;
-  message: string;
-  timestamp: string;
-  category: 'danger' | 'warning' | 'info' | 'deal';
-  targetGroup?: string; // e.g. "Gates", "Section 100", "All Fans"
+  name: string;
+  density: 'low' | 'moderate' | 'high' | 'critical';
+  waitTimeMinutes: number;
+  isOpen: boolean;
+  accessible: boolean;
+}
+
+export interface TransitLine {
+  id: string;
+  name: string;
+  type: 'subway' | 'bus' | 'shuttle' | 'train';
+  status: 'normal' | 'delayed' | 'crowded' | 'suspended';
+  frequencyMinutes: number;
+  nextDeparture: string;
+  sustainabilityRating: 'A+' | 'A' | 'B';
+}
+
+export interface SustainabilityMetric {
+  id: string;
+  label: string;
+  current: number;
+  target: number;
+  unit: string;
+  icon: string;
 }
